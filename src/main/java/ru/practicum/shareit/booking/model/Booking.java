@@ -1,22 +1,24 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.booking.model;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class Booking {
     Long id;
-    String name;
-    String description;
-    boolean available;
-    User owner;
-    ItemRequest request;
+    LocalDateTime start;
+    LocalDateTime end;
+    Item item;
+    User booker;
+    BookingStatus status;
 }
