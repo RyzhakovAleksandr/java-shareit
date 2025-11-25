@@ -4,12 +4,12 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
-public class InMemoryUserRepository implements UserRepository{
+public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private long idCounter = 1;
 
     @Override
-    public  User save(User user) {
+    public User save(User user) {
         if (user.getId() == null) {
             user.setId(idCounter++);
         }
