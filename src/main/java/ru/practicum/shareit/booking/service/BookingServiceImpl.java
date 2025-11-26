@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class BookingServiceImpl implements BookingService{
+public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -38,7 +38,7 @@ public class BookingServiceImpl implements BookingService{
         }
 
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())
-            || bookingDto.getStart().isEqual(bookingDto.getEnd())) {
+                || bookingDto.getStart().isEqual(bookingDto.getEnd())) {
             throw new IllegalArgumentException("Некорректные даты бронирования");
         }
 
@@ -90,6 +90,24 @@ public class BookingServiceImpl implements BookingService{
         return bookingRepository.findByBookerId(bookerId).stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BookingDto cancelBooking(Long bookingId, Long bookerId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Бронирование с ID %d не найдено", bookingId)));
+
+        if (!booking.getBooker().getId().equals(bookerId)) {
+            throw new IllegalArgumentException("Только создатель бронирования может его отменить");
+        }
+
+        if (booking.getStatus() != BookingStatus.WAITING) {
+            throw new IllegalArgumentException("Нельзя отменить уже обработанное бронирование");
+        }
+
+        booking.setStatus(BookingStatus.CANCELED);
+        Booking canceledBooking = bookingRepository.save(booking);
+        return BookingMapper.toBookingDto(canceledBooking);
     }
 
     @Override
