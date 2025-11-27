@@ -34,7 +34,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (item.getOwner().getId().equals(bookerId)) {
-            throw new IllegalArgumentException("Нельхя бронировать свою же вещь");
+            throw new IllegalArgumentException("Нельзя бронировать свою же вещь");
         }
 
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())

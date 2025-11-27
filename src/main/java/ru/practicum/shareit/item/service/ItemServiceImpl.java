@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
 
         if (itemDto.getRequestId() != null) {
             ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
-                    .orElseThrow(() -> new IllegalArgumentException("Запрос с ID " + itemDto.getRequestId() + " не найден"));
+                    .orElseThrow(() -> new IllegalArgumentException(String.format("Запрос с ID %d не найден", itemDto.getRequestId())));
             item.setRequest(request);
         }
 

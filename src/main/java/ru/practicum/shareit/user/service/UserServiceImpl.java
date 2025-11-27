@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Некорректный формат email");
         }
         if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new DuplicateEmailException("Пользователь с email " + userDto.getEmail() + " уже существует");
+            throw new DuplicateEmailException(String.format("Пользователь с email %s уже существует", userDto.getEmail()));
         }
 
         User user = UserMapper.toUser(userDto);
