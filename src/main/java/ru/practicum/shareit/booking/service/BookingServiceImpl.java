@@ -87,7 +87,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto getBookingById(Long bookingId, Long userId) {
-        Booking booking = bookingRepository.findById(bookingId)
+        Booking booking = bookingRepository.findByIdWithRelations(bookingId)
                 .orElseThrow(() -> new ItemNotFoundException(String.format("Бронирование с ID %d не найдено", bookingId)));
 
         if (!booking.getBooker().getId().equals(userId) && !booking.getItem().getOwner().getId().equals(userId)) {
@@ -106,22 +106,22 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByBookerId(bookerId, sort);
+                bookings = bookingRepository.findByBookerIdWithRelations(bookerId, sort);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfter(bookerId, now, now, sort);
+                bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterWithRelations(bookerId, now, now, sort);
                 break;
             case PAST:
-                bookings = bookingRepository.findByBookerIdAndEndBefore(bookerId, now, sort);
+                bookings = bookingRepository.findByBookerIdAndEndBeforeWithRelations(bookerId, now, sort);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findByBookerIdAndStartAfter(bookerId, now, sort);
+                bookings = bookingRepository.findByBookerIdAndStartAfterWithRelations(bookerId, now, sort);
                 break;
             case WAITING:
-                bookings = bookingRepository.findByBookerIdAndStatus(bookerId, BookingStatus.WAITING, sort);
+                bookings = bookingRepository.findByBookerIdAndStatusWithRelations(bookerId, BookingStatus.WAITING, sort);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findByBookerIdAndStatus(bookerId, BookingStatus.REJECTED, sort);
+                bookings = bookingRepository.findByBookerIdAndStatusWithRelations(bookerId, BookingStatus.REJECTED, sort);
                 break;
             default:
                 throw new ValidationException("Неизвестный статус: " + state);
@@ -142,22 +142,22 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByItemOwnerId(ownerId, sort);
+                bookings = bookingRepository.findByItemOwnerIdWithRelations(ownerId, sort);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfter(ownerId, now, now, sort);
+                bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterWithRelations(ownerId, now, now, sort);
                 break;
             case PAST:
-                bookings = bookingRepository.findByItemOwnerIdAndEndBefore(ownerId, now, sort);
+                bookings = bookingRepository.findByItemOwnerIdAndEndBeforeWithRelations(ownerId, now, sort);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findByItemOwnerIdAndStartAfter(ownerId, now, sort);
+                bookings = bookingRepository.findByItemOwnerIdAndStartAfterWithRelations(ownerId, now, sort);
                 break;
             case WAITING:
-                bookings = bookingRepository.findByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING, sort);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusWithRelations(ownerId, BookingStatus.WAITING, sort);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED, sort);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusWithRelations(ownerId, BookingStatus.REJECTED, sort);
                 break;
             default:
                 throw new ValidationException("Неизвестный статус: " + state);

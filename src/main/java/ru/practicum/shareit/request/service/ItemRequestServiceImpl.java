@@ -50,7 +50,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userRepository.findById(requestorId)
                 .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", requestorId)));
 
-        return itemRequestRepository.findByRequestorId(requestorId).stream()
+        return itemRequestRepository.findByRequestorIdWithRequestor(requestorId).stream()
                 .map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
     }
@@ -60,7 +60,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", userId)));
 
-        return itemRequestRepository.findAll().stream()
+        return itemRequestRepository.findAllWithRequestor().stream()
                 .filter(request -> !request.getRequestor().getId().equals(userId))
                 .map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());

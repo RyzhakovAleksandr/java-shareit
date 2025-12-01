@@ -11,10 +11,12 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findByItemId(Long itemId);
 
     @Query("SELECT new ru.practicum.shareit.comment.dto.CommentDto(" +
             "c.id, c.text, c.author.name, c.created) " +
             "FROM Comment c WHERE c.item.id = :itemId")
     List<CommentDto> findCommentDtosByItemId(@Param("itemId") Long itemId);
+
+    @Query("SELECT DISTINCT c FROM Comment c LEFT JOIN FETCH c.author WHERE c.item.id IN :itemIds")
+    List<Comment> findByItemIdsWithAuthor(@Param("itemIds") List<Long> itemIds);
 }
