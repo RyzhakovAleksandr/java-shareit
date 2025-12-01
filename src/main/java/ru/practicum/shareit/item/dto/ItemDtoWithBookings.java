@@ -25,6 +25,7 @@ public class ItemDtoWithBookings {
     List<CommentDto> comments;
 
     @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BookingInfo {
