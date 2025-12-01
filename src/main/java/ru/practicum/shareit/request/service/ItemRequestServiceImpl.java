@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -21,7 +22,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto createItemRequest(ItemRequestDto itemRequestDto, Long requestorId) {
         var requestor = userRepository.findById(requestorId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Пользователь с ID %d не найден", requestorId)));
+                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", requestorId)));
 
         if (itemRequestDto.getDescription() == null || itemRequestDto.getDescription().isBlank()) {
             throw new IllegalArgumentException("Описание запроса не может быть пустым");
@@ -37,7 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto getItemRequestById(Long requestId, Long userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Пользователь с ID %d не найден", userId)));
+                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", userId)));
         ItemRequest itemRequest = itemRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Запрос с ID %d не найден", requestId)));
 
@@ -47,7 +48,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getItemRequestsByUser(Long requestorId) {
         userRepository.findById(requestorId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Пользователь с ID %d не найден", requestorId)));
+                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", requestorId)));
 
         return itemRequestRepository.findByRequestorId(requestorId).stream()
                 .map(ItemRequestMapper::toItemRequestDto)
@@ -57,7 +58,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAllItemRequests(Long userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Пользователь с ID %d не найден", userId)));
+                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", userId)));
 
         return itemRequestRepository.findAll().stream()
                 .filter(request -> !request.getRequestor().getId().equals(userId))
