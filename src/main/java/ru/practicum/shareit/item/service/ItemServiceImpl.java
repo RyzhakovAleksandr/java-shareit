@@ -109,7 +109,7 @@ public class ItemServiceImpl implements ItemService {
             }
         }
 
-        List<CommentDto> comments = commentRepository.findCommentDtosByItemId(id);
+        List<CommentDto> comments = commentRepository.findCommentDtoByItemId(id);
 
         return new ItemDtoWithBookings(
                 item.getId(),
