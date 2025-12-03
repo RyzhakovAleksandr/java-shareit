@@ -12,40 +12,22 @@ import java.util.Map;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler({IllegalArgumentException.class, UserNotFoundException.class})
+    @ExceptionHandler({IllegalArgumentException.class, UserNotFoundException.class, ItemNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFound(IllegalArgumentException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler(DuplicateEmailException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleDuplicateEmail(DuplicateEmailException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleRuntimeException(RuntimeException e) {
-        return Map.of("error", "Внутренняя ошибка сервера");
-    }
-
-    @ExceptionHandler(ItemNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleItemNotFound(ItemNotFoundException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handleAccessDenied(AccessDeniedException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handleNotFound(RuntimeException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidationException(final ValidationException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handleValidationException(ValidationException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDenied(AccessDeniedException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -56,5 +38,11 @@ public class ErrorHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         });
         return errors;
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleException(Exception e) {
+        return new ErrorResponse("Внутренняя ошибка сервера: " + e.getMessage());
     }
 }

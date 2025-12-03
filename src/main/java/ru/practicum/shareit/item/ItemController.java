@@ -2,7 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -12,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
-
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
@@ -29,12 +30,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Long itemId) {
-        return itemService.getItemById(itemId);
+    public ItemDtoWithBookings getItemById(@PathVariable Long itemId,
+                                           @RequestHeader(USER_ID_HEADER) Long userId) {
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID_HEADER) Long ownerId) {
+    public List<ItemDtoWithBookings> getItemsByOwner(@RequestHeader(USER_ID_HEADER) Long ownerId) {
         return itemService.getItemsByOwner(ownerId);
     }
 
@@ -43,9 +45,16 @@ public class ItemController {
         return itemService.searchItems(text);
     }
 
-    @DeleteMapping("{itemId}")
+    @DeleteMapping("/{itemId}")
     public void deleteItem(@PathVariable Long itemId,
                            @RequestHeader(USER_ID_HEADER) Long ownerId) {
         itemService.deleteItem(itemId, ownerId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@PathVariable Long itemId,
+                                 @RequestBody CommentDto commentDto,
+                                 @RequestHeader(USER_ID_HEADER) Long authorId) {
+        return itemService.addComment(itemId, commentDto, authorId);
     }
 }

@@ -1,18 +1,18 @@
 package ru.practicum.shareit.request.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface ItemRequestRepository {
-    ItemRequest save(ItemRequest itemRequest);
+@Repository
+public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> {
 
-    Optional<ItemRequest> findById(Long id);
+    @Query("SELECT DISTINCT ir FROM ItemRequest ir LEFT JOIN FETCH ir.requestor WHERE ir.requestor.id = :requestorId ORDER BY ir.created DESC")
+    List<ItemRequest> findByRequestorIdWithRequestor(Long requestorId);
 
-    List<ItemRequest> findAll();
-
-    List<ItemRequest> findByRequestorId(Long requestorId);
-
-    void deleteById(Long id);
+    @Query("SELECT DISTINCT ir FROM ItemRequest ir LEFT JOIN FETCH ir.requestor ORDER BY ir.created DESC")
+    List<ItemRequest> findAllWithRequestor();
 }
