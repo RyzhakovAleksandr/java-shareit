@@ -1,19 +1,18 @@
 package ru.practicum.shareit.request.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "requests")
 public class ItemRequest {
@@ -24,9 +23,9 @@ public class ItemRequest {
     @Column(nullable = false, columnDefinition = "TEXT")
     String description;
 
-    @ManyToOne
-    @JoinColumn(name = "requestor_id", nullable = false)
-    User requestor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requester_id", nullable = false)
+    User requester;
 
     @Column(nullable = false)
     LocalDateTime created;
