@@ -61,7 +61,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", userId)));
 
         return itemRequestRepository.findAllWithRequestor().stream()
-                .filter(request -> !request.getRequestor().getId().equals(userId))
+                .filter(request -> !request.getRequester().getId().equals(userId))
                 .map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
     }
@@ -71,7 +71,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequest = itemRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Запрос с ID %d не найден", requestId)));
 
-        if (!itemRequest.getRequestor().getId().equals(requestId)) {
+        if (!itemRequest.getRequester().getId().equals(requestId)) {
             throw new IllegalArgumentException("Можно удалять только свои запросы");
         }
 
