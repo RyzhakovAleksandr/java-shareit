@@ -6,15 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRequestDto {
-    Long id;
+public class ItemRequestCreateDto {
     String description;
-    Long requestorId;
-    LocalDateTime created;
 }

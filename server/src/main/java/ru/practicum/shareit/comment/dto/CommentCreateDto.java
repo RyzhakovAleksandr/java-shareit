@@ -1,14 +1,15 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.shareit.comment.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-@Getter
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 @AllArgsConstructor
-public class BookingItemDto {
-    Long id;
-    String name;
+public class CommentCreateDto {
+    String text;
 }

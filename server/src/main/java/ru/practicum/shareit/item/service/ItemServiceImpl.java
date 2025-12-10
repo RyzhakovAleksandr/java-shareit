@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.comment.dto.CommentCreateDto;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.mapper.CommentMapper;
 import ru.practicum.shareit.comment.model.Comment;
@@ -179,7 +180,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentDto addComment(Long itemId, CommentDto commentDto, Long authorId) {
+    public CommentDto addComment(Long itemId, CommentCreateDto commentCreateDto, Long authorId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ItemNotFoundException(String.format("Вещь с ID %d не найдена", itemId)));
 
@@ -192,12 +193,12 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Пользователь не брал вещь в аренду или аренда еще не завершена");
         }
 
-        if (commentDto.getText() == null || commentDto.getText().isBlank()) {
+        if (commentCreateDto.getText() == null || commentCreateDto.getText().isBlank()) {
             throw new ValidationException("Текст комментария не может быть пустым");
         }
 
         Comment comment = new Comment();
-        comment.setText(commentDto.getText());
+        comment.setText(commentCreateDto.getText());
         comment.setItem(item);
         comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());

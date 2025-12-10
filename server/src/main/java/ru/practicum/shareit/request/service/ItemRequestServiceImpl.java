@@ -1,80 +1,117 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.UserNotFoundException;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.mapper.ItemRequestMapper;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
+
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
+import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @Override
-    public ItemRequestDto createItemRequest(ItemRequestDto itemRequestDto, Long requestorId) {
-        var requestor = userRepository.findById(requestorId)
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", requestorId)));
+    @Transactional
+    public ItemRequestResponseDto createRequest(Long userId, ItemRequestCreateDto createDto) {
+        User requester = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID=" + userId + " не найден"));
 
-        if (itemRequestDto.getDescription() == null || itemRequestDto.getDescription().isBlank()) {
+        if (createDto.getDescription() == null || createDto.getDescription().isBlank()) {
             throw new IllegalArgumentException("Описание запроса не может быть пустым");
         }
-        if (itemRequestDto.getCreated() == null) {
-            itemRequestDto.setCreated(LocalDateTime.now());
-        }
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, requestor);
-        ItemRequest savedRequest = itemRequestRepository.save(itemRequest);
-        return ItemRequestMapper.toItemRequestDto(savedRequest);
+
+        ItemRequest request = new ItemRequest();
+        request.setDescription(createDto.getDescription());
+        request.setRequester(requester);
+        request.setCreated(LocalDateTime.now());
+
+        ItemRequest savedRequest = itemRequestRepository.save(request);
+        return toResponseDto(savedRequest, Collections.emptyList());
     }
 
     @Override
-    public ItemRequestDto getItemRequestById(Long requestId, Long userId) {
+    public List<ItemRequestResponseDto> getUserRequests(Long userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", userId)));
-        ItemRequest itemRequest = itemRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Запрос с ID %d не найден", requestId)));
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID=" + userId + " не найден"));
 
-        return ItemRequestMapper.toItemRequestDto(itemRequest);
-    }
-
-    @Override
-    public List<ItemRequestDto> getItemRequestsByUser(Long requestorId) {
-        userRepository.findById(requestorId)
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", requestorId)));
-
-        return itemRequestRepository.findByRequestorIdWithRequestor(requestorId).stream()
-                .map(ItemRequestMapper::toItemRequestDto)
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequesterIdOrderByCreatedDesc(userId);
+        return requests.stream()
+                .map(request -> {
+                    List<ItemDto> items = getItemsForRequest(request.getId());
+                    return toResponseDto(request, items);
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemRequestDto> getAllItemRequests(Long userId) {
+    public List<ItemRequestResponseDto> getAllRequests(Long userId, Pageable pageable) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с ID %d не найден", userId)));
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID=" + userId + " не найден"));
 
-        return itemRequestRepository.findAllWithRequestor().stream()
-                .filter(request -> !request.getRequester().getId().equals(userId))
-                .map(ItemRequestMapper::toItemRequestDto)
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequesterIdNot(userId, pageable);
+        return requests.stream()
+                .map(request -> {
+                    List<ItemDto> items = getItemsForRequest(request.getId());
+                    return toResponseDto(request, items);
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteItemRequest(Long requestId, Long requestorId) {
-        ItemRequest itemRequest = itemRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Запрос с ID %d не найден", requestId)));
+    public ItemRequestResponseDto getRequestById(Long userId, Long requestId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID=" + userId + " не найден"));
 
-        if (!itemRequest.getRequester().getId().equals(requestId)) {
-            throw new IllegalArgumentException("Можно удалять только свои запросы");
-        }
+        ItemRequest request = itemRequestRepository.findById(requestId)
+                .orElseThrow(() -> new AccessDeniedException("Запрос с ID=" + requestId + " не найден"));
 
-        itemRequestRepository.deleteById(requestId);
+        List<ItemDto> items = getItemsForRequest(requestId);
+        return toResponseDto(request, items);
+    }
+
+    private List<ItemDto> getItemsForRequest(Long requestId) {
+        List<Item> items = itemRepository.findAllByRequestId(requestId);
+        return items.stream()
+                .map(this::toItemDto)
+                .collect(Collectors.toList());
+    }
+
+    private ItemDto toItemDto(Item item) {
+        return new ItemDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.isAvailable(),
+                item.getRequest() != null ? item.getRequest().getId() : null
+        );
+    }
+
+    private ItemRequestResponseDto toResponseDto(ItemRequest request, List<ItemDto> items) {
+        return new ItemRequestResponseDto(
+                request.getId(),
+                request.getDescription(),
+                request.getCreated(),
+                items
+        );
     }
 }
