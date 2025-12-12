@@ -22,12 +22,9 @@ class UserDtoJsonTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final Validator validator;
+    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    private final Validator validator = factory.getValidator();;
 
-    {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
-    }
 
     @Test
     void testSerializeUserDto() throws Exception {
