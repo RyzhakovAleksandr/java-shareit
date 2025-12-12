@@ -13,5 +13,5 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 public class ItemRequestCreateDto {
     @NotBlank(message = "Описание запроса не может быть пустым")
-    private String description;
+    String description;
 }
