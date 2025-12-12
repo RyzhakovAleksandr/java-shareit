@@ -1,46 +1,102 @@
 package ru.practicum.shareit.user;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(UserController.class)
 class UserControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private UserService userService;
 
-    @InjectMocks
-    private UserController userController;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private final Long userId = 1L;
 
     @Test
-    void createUser() {
-        UserDto request = new UserDto();
-        UserDto expected = new UserDto();
-        when(userService.createUser(request)).thenReturn(expected);
+    void createUser() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setName("John Doe");
+        userDto.setEmail("john@example.com");
 
-        UserDto result = userController.createUser(request);
+        when(userService.createUser(any(UserDto.class)))
+                .thenReturn(userDto);
 
-        assertThat(result).isEqualTo(expected);
+        mockMvc.perform(post("/users")
+                        .content(objectMapper.writeValueAsString(userDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("John Doe"))
+                .andExpect(jsonPath("$.email").value("john@example.com"));
     }
 
     @Test
-    void getAllUsers() {
-        List<UserDto> expected = Collections.singletonList(new UserDto());
-        when(userService.getAllUsers()).thenReturn(expected);
+    void updateUser() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setName("Updated Name");
+        userDto.setEmail("updated@example.com");
 
-        List<UserDto> result = userController.getAllUsers();
+        when(userService.updateUser(anyLong(), any(UserDto.class)))
+                .thenReturn(userDto);
 
-        assertThat(result).isEqualTo(expected);
+        mockMvc.perform(patch("/users/{userId}", userId)
+                        .content(objectMapper.writeValueAsString(userDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Name"));
+    }
+
+    @Test
+    void getUserById() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+        userDto.setName("John Doe");
+
+        when(userService.getUserById(anyLong()))
+                .thenReturn(userDto);
+
+        mockMvc.perform(get("/users/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userId))
+                .andExpect(jsonPath("$.name").value("John Doe"));
+    }
+
+    @Test
+    void getAllUsers() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+        userDto.setName("John Doe");
+
+        when(userService.getAllUsers())
+                .thenReturn(List.of(userDto));
+
+        mockMvc.perform(get("/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(userId))
+                .andExpect(jsonPath("$[0].name").value("John Doe"));
+    }
+
+    @Test
+    void deleteUser() throws Exception {
+        mockMvc.perform(delete("/users/{userId}", userId))
+                .andExpect(status().isOk());
     }
 }
