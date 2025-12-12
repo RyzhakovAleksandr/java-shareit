@@ -23,7 +23,7 @@ class UserDtoJsonTest {
     private ObjectMapper objectMapper;
 
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = factory.getValidator();;
+    private final Validator validator = factory.getValidator();
 
 
     @Test
