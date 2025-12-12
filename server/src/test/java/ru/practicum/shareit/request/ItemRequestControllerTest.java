@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ItemRequestController.class)
 class ItemRequestControllerTest {
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,7 +50,7 @@ class ItemRequestControllerTest {
                 .thenReturn(responseDto);
 
         mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID_HEADER, userId)
                         .content(objectMapper.writeValueAsString(createDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -67,7 +68,7 @@ class ItemRequestControllerTest {
                 .thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(requestId))
                 .andExpect(jsonPath("$[0].description").value("Need a drill"));
@@ -83,7 +84,7 @@ class ItemRequestControllerTest {
                 .thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID_HEADER, userId)
                         .param("from", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
@@ -100,7 +101,7 @@ class ItemRequestControllerTest {
                 .thenReturn(responseDto);
 
         mockMvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(requestId))
                 .andExpect(jsonPath("$.description").value("Need a drill"));

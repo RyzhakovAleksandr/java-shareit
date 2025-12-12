@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ItemRequestController.class)
 class ItemRequestControllerTest {
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,7 +43,7 @@ class ItemRequestControllerTest {
                 .thenReturn(new ResponseEntity<>("{}", HttpStatus.OK));
 
         mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestCreateDto)))
                 .andExpect(status().isOk());
@@ -53,7 +54,7 @@ class ItemRequestControllerTest {
         ItemRequestCreateDto invalidRequest = new ItemRequestCreateDto("");
 
         mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest())
@@ -74,7 +75,7 @@ class ItemRequestControllerTest {
                 .thenReturn(new ResponseEntity<>("{}", HttpStatus.OK));
 
         mockMvc.perform(get("/requests/{requestId}", 1L)
-                        .header("X-Sharer-User-Id", 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 
@@ -84,7 +85,7 @@ class ItemRequestControllerTest {
                 .thenReturn(new ResponseEntity<>("[]", HttpStatus.OK));
 
         mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 
@@ -94,7 +95,7 @@ class ItemRequestControllerTest {
                 .thenReturn(new ResponseEntity<>("[]", HttpStatus.OK));
 
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk());
@@ -103,7 +104,7 @@ class ItemRequestControllerTest {
     @Test
     void testGetAllRequestsWhenFromIsNegative() throws Exception {
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "-1")
                         .param("size", "10"))
                 .andExpect(status().isBadRequest());
@@ -112,7 +113,7 @@ class ItemRequestControllerTest {
     @Test
     void testGetAllRequestsWhenSizeIsZero() throws Exception {
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "0")
                         .param("size", "0"))
                 .andExpect(status().isBadRequest());
@@ -121,7 +122,7 @@ class ItemRequestControllerTest {
     @Test
     void testGetAllRequestsWhenSizeIsNegative() throws Exception {
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "0")
                         .param("size", "-1"))
                 .andExpect(status().isBadRequest());

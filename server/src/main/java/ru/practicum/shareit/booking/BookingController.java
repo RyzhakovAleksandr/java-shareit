@@ -15,30 +15,31 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingService bookingService;
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingDto createBooking(@RequestBody BookingRequestDto bookingRequestDto,
-                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                    @RequestHeader(USER_ID_HEADER) Long userId) {
         return bookingService.createBooking(bookingRequestDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto approveBooking(@PathVariable Long bookingId,
                                      @RequestParam Boolean approved,
-                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                     @RequestHeader(USER_ID_HEADER) Long userId) {
         return bookingService.approveBooking(bookingId, userId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto getBookingById(@PathVariable Long bookingId,
-                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                     @RequestHeader(USER_ID_HEADER) Long userId) {
         return bookingService.getBookingById(bookingId, userId);
     }
 
     @GetMapping
     public List<BookingDto> getBookingsByBooker(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(USER_ID_HEADER) Long userId,
             @RequestParam(defaultValue = "ALL") BookingState state,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
@@ -47,7 +48,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDto> getBookingsByOwner(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(USER_ID_HEADER) Long userId,
             @RequestParam(defaultValue = "ALL") BookingState state,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {

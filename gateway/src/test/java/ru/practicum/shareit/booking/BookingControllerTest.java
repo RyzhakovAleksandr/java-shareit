@@ -23,6 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(BookingController.class)
 class BookingControllerTest {
 
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -51,7 +53,7 @@ class BookingControllerTest {
                 .thenReturn(new ResponseEntity<>("{}", HttpStatus.OK));
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isOk());
@@ -66,7 +68,7 @@ class BookingControllerTest {
         );
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidBooking)))
                 .andExpect(status().isBadRequest());
@@ -81,7 +83,7 @@ class BookingControllerTest {
         );
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidBooking)))
                 .andExpect(status().isBadRequest());
@@ -93,7 +95,7 @@ class BookingControllerTest {
                 .thenReturn(new ResponseEntity<>("[]", HttpStatus.OK));
 
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "ALL")
                         .param("from", "0")
                         .param("size", "10"))
@@ -103,7 +105,7 @@ class BookingControllerTest {
     @Test
     void testGetBookingsWhenInvalidState() throws Exception {
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "INVALID_STATE")
                         .param("from", "0")
                         .param("size", "10"))
@@ -114,7 +116,7 @@ class BookingControllerTest {
     @Test
     void testGetBookingsWhenFromIsNegative() throws Exception {
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "ALL")
                         .param("from", "-1")
                         .param("size", "10"))
@@ -124,7 +126,7 @@ class BookingControllerTest {
     @Test
     void testGetBookingsWhenSizeIsZero() throws Exception {
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "ALL")
                         .param("from", "0")
                         .param("size", "0"))
@@ -137,7 +139,7 @@ class BookingControllerTest {
                 .thenReturn(new ResponseEntity<>("[]", HttpStatus.OK));
 
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "ALL")
                         .param("from", "0")
                         .param("size", "10"))
@@ -150,7 +152,7 @@ class BookingControllerTest {
                 .thenReturn(new ResponseEntity<>("{}", HttpStatus.OK));
 
         mockMvc.perform(patch("/bookings/{bookingId}", 1L)
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("approved", "true"))
                 .andExpect(status().isOk());
     }
@@ -161,7 +163,7 @@ class BookingControllerTest {
                 .thenReturn(new ResponseEntity<>("{}", HttpStatus.OK));
 
         mockMvc.perform(get("/bookings/{bookingId}", 1L)
-                        .header("X-Sharer-User-Id", 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 }

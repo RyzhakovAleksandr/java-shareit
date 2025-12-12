@@ -15,21 +15,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ItemRequestResponseDto createRequest(@RequestBody ItemRequestCreateDto createDto,
-                                                @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                                @RequestHeader(USER_ID_HEADER) Long userId) {
         return itemRequestService.createRequest(userId, createDto);
     }
 
     @GetMapping
-    public List<ItemRequestResponseDto> getUserRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestResponseDto> getUserRequests(@RequestHeader(USER_ID_HEADER) Long userId) {
         return itemRequestService.getUserRequests(userId);
     }
 
     @GetMapping("/all")
-    public List<ItemRequestResponseDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<ItemRequestResponseDto> getAllRequests(@RequestHeader(USER_ID_HEADER) Long userId,
                                                        @RequestParam(defaultValue = "0") Integer from,
                                                        @RequestParam(defaultValue = "10") Integer size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
@@ -38,7 +39,7 @@ public class ItemRequestController {
 
     @GetMapping("/{requestId}")
     public ItemRequestResponseDto getRequestById(@PathVariable Long requestId,
-                                                 @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                                 @RequestHeader(USER_ID_HEADER) Long userId) {
         return itemRequestService.getRequestById(userId, requestId);
     }
 }

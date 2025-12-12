@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ItemController.class)
 class ItemControllerTest {
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,7 +49,7 @@ class ItemControllerTest {
                 .thenReturn(itemDto);
 
         mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID_HEADER, ownerId)
                         .content(objectMapper.writeValueAsString(itemDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -66,7 +67,7 @@ class ItemControllerTest {
                 .thenReturn(itemDto);
 
         mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID_HEADER, ownerId)
                         .content(objectMapper.writeValueAsString(itemDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -83,7 +84,7 @@ class ItemControllerTest {
                 .thenReturn(itemDto);
 
         mockMvc.perform(get("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(itemId))
                 .andExpect(jsonPath("$.name").value("Drill"));
@@ -99,7 +100,7 @@ class ItemControllerTest {
                 .thenReturn(List.of(itemDto));
 
         mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", ownerId))
+                        .header(USER_ID_HEADER, ownerId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(itemId))
                 .andExpect(jsonPath("$[0].name").value("Drill"));
@@ -124,7 +125,7 @@ class ItemControllerTest {
     @Test
     void deleteItem() throws Exception {
         mockMvc.perform(delete("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", ownerId))
+                        .header(USER_ID_HEADER, ownerId))
                 .andExpect(status().isOk());
     }
 
@@ -143,7 +144,7 @@ class ItemControllerTest {
                 .thenReturn(commentDto);
 
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID_HEADER, userId)
                         .content(objectMapper.writeValueAsString(createDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

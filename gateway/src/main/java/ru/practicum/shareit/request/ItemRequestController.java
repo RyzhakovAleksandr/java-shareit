@@ -19,10 +19,11 @@ import jakarta.validation.constraints.PositiveOrZero;
 @Validated
 public class ItemRequestController {
     private final ItemRequestClient itemRequestClient;
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ResponseEntity<Object> createRequest(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader(USER_ID_HEADER) long userId,
             @RequestBody @Valid ItemRequestCreateDto requestDto) {
         log.info("Creating request {}, userId={}", requestDto, userId);
         return itemRequestClient.createRequest(userId, requestDto);
@@ -30,7 +31,7 @@ public class ItemRequestController {
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getRequestById(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader(USER_ID_HEADER) long userId,
             @PathVariable Long requestId) {
         log.info("Get request {}, userId={}", requestId, userId);
         return itemRequestClient.getRequestById(userId, requestId);
@@ -38,13 +39,13 @@ public class ItemRequestController {
 
     @GetMapping
     public ResponseEntity<Object> getUserRequests(
-            @RequestHeader("X-Sharer-User-Id") long userId) {
+            @RequestHeader(USER_ID_HEADER) long userId) {
         return itemRequestClient.getUserRequests(userId);
     }
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAllRequests(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader(USER_ID_HEADER) long userId,
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Get all requests, userId={}, from={}, size={}", userId, from, size);

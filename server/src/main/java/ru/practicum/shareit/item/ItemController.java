@@ -15,28 +15,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDto createItem(@RequestBody ItemDto itemDto,
-                              @RequestHeader("X-Sharer-User-Id") Long ownerId) {
+                              @RequestHeader(USER_ID_HEADER) Long ownerId) {
         return itemService.createItem(itemDto, ownerId);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId,
                               @RequestBody ItemDto itemDto,
-                              @RequestHeader("X-Sharer-User-Id") Long ownerId) {
+                              @RequestHeader(USER_ID_HEADER) Long ownerId) {
         return itemService.updateItem(itemId, itemDto, ownerId);
     }
 
     @GetMapping("/{itemId}")
     public ItemDtoWithBookings getItemById(@PathVariable Long itemId,
-                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                           @RequestHeader(USER_ID_HEADER) Long userId) {
         return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDtoWithBookings> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemDtoWithBookings> getItemsByOwner(@RequestHeader(USER_ID_HEADER) Long ownerId) {
         return itemService.getItemsByOwner(ownerId);
     }
 
@@ -47,15 +48,14 @@ public class ItemController {
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(@PathVariable Long itemId,
-                           @RequestHeader("X-Sharer-User-Id") Long ownerId) {
+                           @RequestHeader(USER_ID_HEADER) Long ownerId) {
         itemService.deleteItem(itemId, ownerId);
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@PathVariable Long itemId,
                                  @RequestBody CommentCreateDto commentCreateDto,
-                                 @RequestHeader("X-Sharer-User-Id") Long authorId) {
-        // ИСПРАВЛЕНО: передаем CommentCreateDto напрямую
+                                 @RequestHeader(USER_ID_HEADER) Long authorId) {
         return itemService.addComment(itemId, commentCreateDto, authorId);
     }
 }

@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(BookingController.class)
 class BookingControllerTest {
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,7 +50,7 @@ class BookingControllerTest {
                 .thenReturn(bookingDto);
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID_HEADER, userId)
                         .content(objectMapper.writeValueAsString(requestDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -66,7 +67,7 @@ class BookingControllerTest {
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .param("approved", "true")
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(bookingId));
     }
@@ -80,7 +81,7 @@ class BookingControllerTest {
                 .thenReturn(bookingDto);
 
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(USER_ID_HEADER, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(bookingId));
     }
@@ -94,7 +95,7 @@ class BookingControllerTest {
                 .thenReturn(List.of(bookingDto));
 
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID_HEADER, userId)
                         .param("state", "ALL")
                         .param("from", "0")
                         .param("size", "10"))
@@ -111,7 +112,7 @@ class BookingControllerTest {
                 .thenReturn(List.of(bookingDto));
 
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(USER_ID_HEADER, userId)
                         .param("state", "ALL")
                         .param("from", "0")
                         .param("size", "10"))
